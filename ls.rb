@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
-
-public
-
 argument = ARGV[0].nil? ? '.' : ARGV[0]
 
 if File.directory? argument
@@ -18,6 +14,8 @@ exit unless File.directory? argument
 
 # -aオプションの場合はこの処理を省く必要がありそうなので、entriesとは別の変数として定義している
 entries_normal = entries.reject { |entry| entry.start_with? '.' }
+
+public
 
 def each_slice_into_rows(max_columns)
   each_slice((length.to_f / max_columns).ceil)
