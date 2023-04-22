@@ -16,7 +16,7 @@ end
 
 exit unless File.directory? argument
 
-# -aオプションの場合はこの処理を省く必要があるため、entriesとは別の変数として定義している
+# -aオプションの場合はこの処理を省く必要がありそうなので、entriesとは別の変数として定義している
 entries_normal = entries.reject { |entry| entry.start_with? '.' }
 
 def each_slice_into_rows(max_columns)
@@ -25,22 +25,24 @@ end
 
 columns = entries_normal.each_slice_into_rows(3).to_a
 
-# 各ブロックの要素数を揃える
-# 足りない要素を' 'で埋める
-columns.each { |column| column.concat([''] * (columns.map(&:length).max - column.length)) }
+def pad_to_max_length
+  map { |array| array + [''] * (map(&:length).max - array.length) }
+end
+
+padded_columns = columns.pad_to_max_length
 
 def hankaku_ljust(width, padding = ' ')
   convert_hankaku = 0
 
-  each_char do |char| # エントリの文字ごとに繰り返し処理
+  each_char do |char|
     convert_hankaku += char.bytesize - 2 if char.bytesize > 1
   end
 
-  ljust(width - convert_hankaku, padding) # ljustの第１引数で扱えるのは全半角を区別しない単純な文字数だが、convert_hankakuを引くことで半角文字数としてカウントできるようにしている
+  ljust(width - convert_hankaku, padding)
 end
 
-columns.transpose.each do |row| # 行単位で繰り返し処理
-  row.each do |entry| # エントリ単位で繰り返し処理
+padded_columns.transpose.each do |row|
+  row.each do |entry|
     print entry.hankaku_ljust(18)
   end
 
